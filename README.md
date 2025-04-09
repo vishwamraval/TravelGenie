@@ -28,12 +28,12 @@ Ensure you have the following installed:
      ollama --version
      ```
 
-2. **Pull the Llama2 8B Model**:
+2. **Pull the Llama3.1 8B Model**:
    - Open a terminal and run:
      ```bash
      ollama pull llama3.1:8b
      ```
-   - Wait for the download to complete (approximately 4.5GB)
+   - Wait for the download to complete (approximately 5GB)
    - Verify the model is ready:
      ```bash
      ollama list
