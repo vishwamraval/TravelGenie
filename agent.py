@@ -1,6 +1,6 @@
 # agent.py
 import torch
-from langchain_core.messages import HumanMessage, AIMessage
+from langchain_core.messages import HumanMessage
 from langchain_ollama import ChatOllama
 
 # Configure the LLM
@@ -9,17 +9,18 @@ llm = ChatOllama(
     temperature=0.7,
     max_tokens=512,
     num_gpu=torch.cuda.device_count() if torch.cuda.is_available() else 0,
-    system_message="""You are a helpful travel assistant. You can help users with travel planning, destination recommendations, and general travel advice."""
+    system_message="""You are a helpful travel assistant. You can help users with travel planning, destination recommendations, and general travel advice.""",
 )
 llm.verbose = True
+
 
 def run_agent(query: str) -> str:
     """
     Run the travel agent with the given query.
-    
+
     Args:
         query (str): The user's query about travel planning.
-        
+
     Returns:
         str: The agent's response to the query.
     """

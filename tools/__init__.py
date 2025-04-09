@@ -9,5 +9,5 @@ tool_registry = {
     "get_hotels": get_hotels,
     "rent_car": rent_car,
     "get_attractions": get_attractions,
-    "search": general_search
+    "search": general_search,
 }

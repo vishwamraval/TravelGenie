@@ -1,7 +1,7 @@
 def rent_car(pickup_location, dropoff_location, pickup_date, dropoff_date, car_type):
     """
     Function to simulate a car rental service.
-    
+
     Args:
     pickup_location (str): The location where the car will be picked up.
     dropoff_location (str): The location where the car will be dropped off.

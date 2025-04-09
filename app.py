@@ -1,71 +1,127 @@
 # app.py
 import streamlit as st
-import random
 from agent import run_agent
 
-st.set_page_config(page_title="TravelGenie AI", page_icon="✈️")
-st.title("✈️ TravelGenie AI")
-st.write("Ask me to plan your trip, find flights, or suggest destinations!")
+# Session State Init for chat history
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
 
-st.sidebar.title("User Input")
-st.sidebar.write("Enter your travel preferences below:")
+# Sidebar Configuration
+with st.sidebar:
+    st.title("✈️ TravelGenie AI")
 
-start_city = st.sidebar.text_input("Start City", placeholder="Enter your starting city")
-destinations = st.sidebar.text_input("Destinations", placeholder="Enter your destination(s)")
-travel_dates = st.sidebar.date_input("Travel Dates", [])
-interests = st.sidebar.multiselect("Interests", ["Museums", "Food", "Culture", "Adventure", "Relaxation", "Business"])
-st.sidebar.markdown("Budget and Travelers")
-budget = st.sidebar.number_input("Budget ($)", min_value=0, value=2000, step=100)
-adult_travelers = st.sidebar.number_input("Number of Adults", min_value=1, value=2, step=1)
-child_travelers = st.sidebar.number_input("Number of Kids (Under 12)", min_value=0, value=2, step=1)
-special_requests = st.sidebar.text_area("Special Requests", placeholder="Vegetarian meals, wheelchair accessible")
+    with st.container():
+        st.markdown("#### Travel Preferences")
+        start_city = st.text_input("Start City", placeholder="Enter your starting city")
+        destinations = st.text_input(
+            "Destinations", placeholder="Enter your destination(s)"
+        )
+        travel_dates = st.date_input("Travel Dates", [], format="MM/DD/YYYY")
+        interests = st.multiselect(
+            "Interests",
+            [
+                "Museums",
+                "Food",
+                "Culture",
+                "Adventure",
+                "Relaxation",
+                "Business",
+                "Nature",
+            ],
+            default=[],
+        )
 
-placeholders = [
-    "Where should I go for a beach vacation?",
-    "What are the best restaurants in Paris?",
-    "Can you suggest a family-friendly itinerary for New York?",
-    "What are some must-see attractions in Tokyo?",
-    "Help me plan a weekend getaway to the mountains.",
-    "What are the top things to do in Rome?",
-    "What are the best travel tips for solo travelers?",
-    "Can you recommend a budget-friendly destination in Europe?",
-]
+        st.markdown("#### Travelers & Budget")
+        col1, col2 = st.columns(2)
+        with col1:
+            adult_travelers = st.number_input("Adults", min_value=1, value=2)
+        with col2:
+            child_travelers = st.number_input("Kids", min_value=0, value=0)
 
-user_query = st.text_input(
-    "Ask TravelGenie:", 
-    placeholder=random.choice(placeholders), 
-    key="bottom_query"
-)
-if st.button("Send"):
-    if user_query:
-        st.write("### TravelGenie Response")
-        response = run_agent(user_query)
-        st.write(f"**Response:** {response}")
-    else:
-        st.warning("Please enter a query to get a response.")
+        budget = st.number_input("Budget ($)", min_value=0, value=2000, step=100)
+        special_requests = st.text_area(
+            "Special Requests",
+            height=60,
+            placeholder="Vegetarian meals, wheelchair accessible",
+        )
 
-# if the user chooses to send via the presets, generate a prompt and send it to the agent
+        if st.button("Generate Travel Plan"):
+            if not start_city or not destinations or not travel_dates:
+                st.warning(
+                    "Please fill in all required fields to generate a travel plan."
+                )
+            else:
+                pre_filled_prompt = f"""Plan a trip with the following details:
+                - Starting from: {start_city}
+                - Destinations: {destinations}
+                - Travel dates: {" - ".join([date.strftime("%m/%d/%Y") for date in travel_dates])}
+                - Interests: {", ".join(interests) if interests else "None"}
+                - Budget: ${budget}
+                - Number of travelers: {adult_travelers} Adults, {child_travelers} Kids
+                - Special requests: {special_requests if special_requests else "None"}
 
-pre_defined_prompt = f"""Plan a trip with the following details:
-- Starting from: {start_city}
-- Destinations: {destinations}
-- Travel dates: {travel_dates}
-- Interests: {', '.join(interests) if interests else 'None'}
-- Budget: ${budget}
-- Number of travelers: {adult_travelers} Adults, and {child_travelers} Kids
-- Special requests: {special_requests}
+                Please provide a detailed travel plan including:
+                1. Recommended itinerary
+                2. Transportation options
+                3. Accommodation suggestions
+                4. Activities and attractions
+                5. Estimated costs
+                6. Any special considerations based on the provided preferences
+                """
+                st.session_state.chat_history.append(
+                    {
+                        "role": "user",
+                        "content": f"Generate a travel plan with the following details:\n"
+                        f"- Starting city: {start_city}\n"
+                        f"- Destination(s): {destinations}\n"
+                        f"- Travel dates: {travel_dates[0].strftime('%m/%d/%Y')} to {travel_dates[-1].strftime('%m/%d/%Y')}\n"
+                        f"- Travelers: {adult_travelers} adult(s) and {child_travelers} kid(s)\n"
+                        f"- Budget: ${budget}\n"
+                        f"- Interests: {', '.join(interests) if interests else 'None'}.",
+                    }
+                )
+                with st.spinner("Generating your travel plan..."):
+                    try:
+                        response = run_agent(pre_filled_prompt)
+                        st.session_state.chat_history.append(
+                            {"role": "assistant", "content": response}
+                        )
+                    except Exception as e:
+                        st.session_state.chat_history.append(
+                            {
+                                "role": "assistant",
+                                "content": f"❌ Error generating plan: {e}",
+                            }
+                        )
 
-Please provide a detailed travel plan including:
-1. Recommended itinerary
-2. Transportation options
-3. Accommodation suggestions
-4. Activities and attractions
-5. Estimated costs
-6. Any special considerations based on the provided preferences"""
 
-if st.sidebar.button("Generate Travel Plan"):
-    st.write("### Your Travel Plan Request:")
-    st.text_area("Generated Prompt:", pre_defined_prompt, height=300)
-    st.write("### TravelGenie Response")
-    response = run_agent(pre_defined_prompt)
-    st.write(f"**Response:** {response}")
+# Chat Display
+st.title("💬 Chat with TravelGenie AI")
+
+for message in st.session_state.chat_history:
+    with st.chat_message(
+        message["role"], avatar="🧞" if message["role"] == "assistant" else "👤"
+    ):
+        st.markdown(message["content"])
+
+# User Input Field
+prompt = st.chat_input("Where would you like to travel?")
+
+if prompt:
+    st.session_state.chat_history.append({"role": "user", "content": prompt})
+    with st.chat_message("user", avatar="👤"):
+        st.markdown(prompt)
+    with st.chat_message("assistant", avatar="🧞"):
+        with st.spinner("TravelGenie is thinking..."):
+            try:
+                response = run_agent(prompt)
+                st.session_state.chat_history.append(
+                    {"role": "assistant", "content": response}
+                )
+                st.markdown(response)
+            except Exception as e:
+                error_msg = f"❌ Error: {e}"
+                st.session_state.chat_history.append(
+                    {"role": "assistant", "content": error_msg}
+                )
+                st.error(error_msg)

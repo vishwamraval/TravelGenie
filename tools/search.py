@@ -1,14 +1,25 @@
-import tavily
+# search.py
+# Reference: https://docs.tavily.com/sdk/python/reference
+from tavily import TavilyClient
+import dotenv
 
-def general_search(query: str, limit: int = 5) -> list:
+dotenv.load_dotenv()
+
+client = TavilyClient()
+
+
+def general_search(query: str) -> str:
     """
     Perform a general search using the Tavily API.
-
     Args:
         query (str): The search query.
-        limit (int): The maximum number of results to return.
-
     Returns:
-        list: A list of search results.
+        str: The search results.
     """
-    return f'{tavily.search(query, limit)}'
+    result = client.search(query=query, search_depth="basic", max_results=5)
+    return result
+
+
+# Example search
+search_results = general_search("Paris")
+print(search_results)
