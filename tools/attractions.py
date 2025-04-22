@@ -9,7 +9,6 @@
 #     Returns:
 #         str: A message indicating the available attractions.
 #     """
-
 from langchain.tools import tool
 import requests
 
@@ -23,31 +22,23 @@ def get_attractions(query: str, languagecode: str = "en-us") -> str:
         languagecode: Language for the results (default is "en-us").
 
     Returns:
-        A string with location details (like region, city, and coordinates).
+        A List of attractions in the specified city.
     """
     url = "https://booking-com15.p.rapidapi.com/api/v1/attraction/searchLocation"
 
     querystring = {"query": query, "languagecode": languagecode}
 
     headers = {
-        "x-rapidapi-key": "YOUR_RAPIDAPI_KEY",  # Replace with your actual key
+        "x-rapidapi-key": "112e989570msh9edb0829bd0a68ep1d5001jsn898c1ee525a5",  # Replace with your actual key
         "x-rapidapi-host": "booking-com15.p.rapidapi.com"
     }
 
     response = requests.get(url, headers=headers, params=querystring)
-
+    atx=[]
     if response.status_code == 200:
         data = response.json()
-        if data and "results" in data and data["results"]:
-            top_result = data["results"][0]
-            name = top_result.get("name", "Unknown")
-            lat = top_result.get("latitude")
-            lon = top_result.get("longitude")
-            region = top_result.get("region", {}).get("name", "")
-            return f"{name} in {region} is located at latitude {lat}, longitude {lon}."
-        else:
-            return "No location found for that query."
+        for product in data['data']['products']:
+            atx.append(product['title'])
+        return atx
     else:
-        return f"Failed to fetch location. Status code: {response.status_code}"
-
-    return f"Searching for attractions in {city} on {date}."
+        return f"Error: {response.status_code} - {response.text} "
