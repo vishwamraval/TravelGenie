@@ -5,3 +5,4 @@ streamlit==1.37.1
 tavily_python==0.5.1
 torch==2.3.0
 torch==2.3.0+cu121
+
