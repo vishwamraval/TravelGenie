@@ -22,10 +22,10 @@ llm = ChatOllama(
 # Register tools
 
 tools = list(tool_registry.values())
-print(tools)
+# print(tools)
 
-for tool in tools:
-    print(f"Registering tool: {tool.name}")
+# for tool in tools:
+#     print(f"Registering tool: {tool.name}")
 llm = llm.bind_tools(tools)
 
 # Memory checkpointer
@@ -41,7 +41,7 @@ llm.invoke(
             You can provide recommendations, itineraries, and travel tips.
             You have to call tools to fetch real-time data and should not perform a general search to provide information.
             If the user asks for flights or travel between cities, always use the get_flights tool.
-            If you need to get current year use the get_current_year tool. 
+            If you need to get current year or user didn't provide it, use the get_current_year tool. 
             Do not perform a general search for this.
             You can ask clarifying questions to understand user preferences.
             Be polite and friendly.
