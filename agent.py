@@ -42,6 +42,7 @@ llm.invoke(
             You have to call tools to fetch real-time data and should not perform a general search to provide information.
             If the user asks for flights or travel between cities, always use the get_flights tool.
             If you need to get current year or user didn't provide it, use the get_current_year tool. 
+            If the user provides past dates, politely inform them that you can only provide information for future dates.
             Do not perform a general search for this.
             You can ask clarifying questions to understand user preferences.
             Be polite and friendly.
