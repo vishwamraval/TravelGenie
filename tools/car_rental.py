@@ -1,3 +1,5 @@
+from langchain_core.tools import tool
+@tool
 def rent_car(pickup_location, dropoff_location, pickup_date, dropoff_date, car_type):
     """
     Function to simulate a car rental service.

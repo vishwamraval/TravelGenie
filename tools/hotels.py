@@ -152,3 +152,15 @@ def get_hotels(
         )
 
     return json.dumps(hotel_data, indent=2)
+
+
+if __name__ == "__main__":
+    response = get_hotels.invoke({
+        "query": "Mumbai",
+        "arrival_date": "2024-08-15",
+        "departure_date": "2024-08-17",
+        "languagecode": "en-us",
+        "adults": 2,
+        "children": 1
+    })
+    print(response)
