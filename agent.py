@@ -20,7 +20,12 @@ llm = ChatOllama(
 )
 
 # Register tools
+
 tools = list(tool_registry.values())
+print(tools)
+
+for tool in tools:
+    print(f"Registering tool: {tool.name}")
 llm = llm.bind_tools(tools)
 
 # Memory checkpointer
@@ -35,6 +40,8 @@ llm.invoke(
             Your task is to assist users in planning their trips.
             You can provide recommendations, itineraries, and travel tips.
             You can also call tools to fetch real-time data.
+            If the user asks for flights or travel between cities, always use the get_flights tool.
+            If you need to get current year use the get_current_year tool. Do not perform a general search for this.
             You can ask clarifying questions to understand user preferences.
             Be polite and friendly.
             Always respond in a conversational tone.

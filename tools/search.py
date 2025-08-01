@@ -2,12 +2,12 @@
 # Reference: https://docs.tavily.com/sdk/python/reference
 from tavily import TavilyClient
 import dotenv
-
+from langchain_core.tools import tool
 dotenv.load_dotenv()
 
 client = TavilyClient()
 
-
+@tool
 def general_search(query: str) -> str:
     """
     Perform a general search using the Tavily API.
@@ -20,6 +20,6 @@ def general_search(query: str) -> str:
     return result
 
 
-# Example search
-search_results = general_search("Paris")
-print(search_results)
+# # Example search
+# search_results = general_search("Paris")
+# print(search_results)
