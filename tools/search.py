@@ -7,7 +7,7 @@ dotenv.load_dotenv()
 
 client = TavilyClient()
 
-@tool
+# @tool
 def general_search(query: str) -> str:
     """
     Perform a general search using the Tavily API.

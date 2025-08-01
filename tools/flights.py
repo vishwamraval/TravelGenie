@@ -7,7 +7,7 @@ load_dotenv()
 RAPIDAPI_KEY = os.getenv("RAPIDAPI_KEY")
 RAPIDAPI_HOST = os.getenv("RAPIDAPI_HOST")
 
-@tool
+# @tool
 def search_airport_id(query: str):
     """Search for the airport ID based on a city or destination name."""
 
@@ -50,7 +50,7 @@ def get_min_price(from_id: str, to_id: str, date: str):
         "currency_code": "INR"
     }
     response = requests.get(url, headers=headers, params=params)
-    print(f"Response status code for get_min_price: {response}")
+    print(f"Response status code for get_min_price: {response.json()}")
     return response.json()
 
 @tool
@@ -97,6 +97,7 @@ def get_flights(from_city: str, to_city: str, date: str):
         return f"Could not find airport codes for {from_city}:{from_id} or {to_city}:{to_id}."
 
     # Step 2: Get Flight Prices
+    print(f"Searching for flights from {from_city} ({from_id}) to {to_city} ({to_id}) on {date}...")
     flight_data = get_min_price(from_id, to_id, date)
 
     if not flight_data.get("status"):
@@ -104,8 +105,10 @@ def get_flights(from_city: str, to_city: str, date: str):
 
     flights = flight_data.get("data", [])
     if not flights:
+        print(f"No flights found from {from_city} to {to_city} on {date}.")
         return f"No flights found from {from_city} to {to_city} on {date}."
-    # print(flights)
+    
+    print(flights)
     # Taking the first cheapest flight
     cheapest_flight = flights[0]
     price = cheapest_flight.get("price")
