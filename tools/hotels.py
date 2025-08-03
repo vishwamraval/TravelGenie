@@ -150,7 +150,8 @@ def get_hotels(
                 "reviews": reviews,
             }
         )
-
+    with open("hotel_data.json", "w") as f:
+        json.dump(hotel_data, f, indent=2)
     return json.dumps(hotel_data, indent=2)
 
 
