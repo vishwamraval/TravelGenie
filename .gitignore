@@ -5,3 +5,5 @@
 *.csv
 node_modules/*
 *.json
+flights_data.csv
+flights_data.json
