@@ -3,3 +3,4 @@
 /__pycache__/
 *.mp4
 flights_data.json
+flights_data.csv
