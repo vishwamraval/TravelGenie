@@ -1,6 +1,7 @@
 # app.py
 import streamlit as st
 from agent import run_agent
+import openai
 
 # Session State Init for chat history
 if "chat_history" not in st.session_state:
@@ -94,7 +95,92 @@ with st.sidebar:
                             }
                         )
 
+import streamlit as st
+import openai
+import base64
+import requests
+from io import BytesIO
+import streamlit.components.v1 as components
 
+st.markdown("### 🎤 Record Your Query (Whisper AI)")
+
+audio_recorder_html = """
+<script>
+let mediaRecorder;
+let audioChunks = [];
+let isRecording = false;
+
+function startRecording() {
+    navigator.mediaDevices.getUserMedia({ audio: true })
+    .then(stream => {
+        mediaRecorder = new MediaRecorder(stream);
+        mediaRecorder.start();
+        isRecording = true;
+        audioChunks = [];
+
+        mediaRecorder.addEventListener("dataavailable", event => {
+            audioChunks.push(event.data);
+        });
+
+        mediaRecorder.addEventListener("stop", () => {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+            const reader = new FileReader();
+            reader.readAsDataURL(audioBlob);
+            reader.onloadend = function() {
+                const base64String = reader.result.split(',')[1];
+                const textInput = document.getElementById('audioBase64');
+                textInput.value = base64String;
+                const submitButton = document.getElementById('submitButton');
+                submitButton.click();
+            }
+        });
+    });
+}
+
+function stopRecording() {
+    if (mediaRecorder && isRecording) {
+        mediaRecorder.stop();
+        isRecording = false;
+    }
+}
+</script>
+
+<button onclick="startRecording()">🔴 Start Recording</button>
+<button onclick="stopRecording()">⏹️ Stop Recording</button>
+<input type="hidden" id="audioBase64" name="audioBase64">
+<form action="?recorded=true" method="post">
+    <input type="submit" id="submitButton" style="display:none;">
+</form>
+"""
+
+components.html(audio_recorder_html)
+
+# Handle POST Request with recorded audio
+if st.experimental_get_query_params().get("recorded") == ["true"]:
+    base64_audio = st.experimental_get_query_params().get("audioBase64")
+    if base64_audio:
+        audio_data = base64.b64decode(base64_audio[0])
+        audio_file = BytesIO(audio_data)
+        st.audio(audio_file, format="audio/wav")
+
+        with st.spinner("Transcribing..."):
+            try:
+                transcript = openai.Audio.transcribe("whisper-1", audio_file)
+                prompt = transcript["text"]
+                st.success(f"Transcribed Text: {prompt}")
+
+                # Chat Flow Continuation
+                st.session_state.chat_history.append({"role": "user", "content": prompt})
+
+                with st.chat_message("user", avatar="👤"):
+                    st.markdown(prompt)
+                with st.chat_message("assistant", avatar="🧞"):
+                    with st.spinner("TravelGenie is thinking..."):
+                        response = run_agent(prompt)
+                        st.session_state.chat_history.append({"role": "assistant", "content": response})
+                        st.markdown(response)
+            except Exception as e:
+                st.error(f"Transcription failed: {e}")
 # Chat Display
 st.title("💬 Chat with TravelGenie AI")
 
