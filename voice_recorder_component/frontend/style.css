@@ -1,0 +1,9 @@
+#recordButton {
+    font-size: 24px;
+    padding: 10px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    background-color: #FF6B6B;
+    color: white;
+}
